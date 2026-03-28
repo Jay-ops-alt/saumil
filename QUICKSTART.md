@@ -28,4 +28,6 @@ Follow these steps to get the project running locally with XAMPP:
    - Admin — Username: `admin`, Password: `admin123`
    - Professor — Email: `professor@example.com`, Password: `Avani@123`
 
+   These credentials are for local/demo use only. Create your own accounts or change the passwords immediately before any production use.
+
 If you see a database connection error, confirm the database name matches `aqpg_db`, MySQL is running, and the credentials in `config/db.php` are correct.
