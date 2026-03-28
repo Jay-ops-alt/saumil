@@ -28,6 +28,7 @@ $stmt->execute();
 $stmt->bind_result($counts['papers']);
 $stmt->fetch();
 $stmt->close();
+$activePage = 'dashboard';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -35,54 +36,82 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Professor Dashboard - AQPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-2 sidebar p-3">
-            <h5 class="text-white">Professor</h5>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link text-white" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="subjects.php">My Subjects</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="subject_codes.php">My Subject Codes</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="papers.php">Question Papers</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="questions.php">Questions</a></li>
-                <li class="nav-item"><a class="nav-link text-danger" href="logout.php">Logout</a></li>
-            </ul>
-        </nav>
-        <main class="col-md-10 ms-sm-auto px-4 py-4">
-            <h1 class="h4 mb-3">Dashboard</h1>
+    <header class="topbar no-print">
+        <div class="brand">
+            <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
+            <span>AQPG</span>
+        </div>
+        <div class="top-actions">
+            <div class="nav-links d-none d-md-flex">
+                <a href="../index.php">Home</a>
+            </div>
+            <span class="role-badge">PROFESSOR</span>
+            <button class="sidebar-toggle d-lg-none" type="button" aria-label="Toggle sidebar">
+                <span style="width:16px;height:2px;background:var(--ink);display:block;box-shadow:0 5px 0 var(--ink),0 -5px 0 var(--ink);"></span>
+            </button>
+        </div>
+    </header>
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Navigation</div>
+                <div class="sidebar-menu">
+                    <a class="sidebar-link <?php echo $activePage === 'dashboard' ? 'active' : ''; ?>" href="dashboard.php">Dashboard</a>
+                    <a class="sidebar-link" href="subjects.php">My Subjects</a>
+                    <a class="sidebar-link" href="subject_codes.php">My Subject Codes</a>
+                    <a class="sidebar-link" href="papers.php">Question Papers</a>
+                    <a class="sidebar-link" href="questions.php">Questions</a>
+                    <a class="sidebar-link" href="logout.php">Logout</a>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-avatar">PR</div>
+                <div class="sidebar-meta">
+                    <small>Signed in</small>
+                    <strong>Professor</strong>
+                </div>
+            </div>
+        </aside>
+        <main class="app-main">
+            <div class="content-header">
+                <div>
+                    <p class="stat-label mb-1">Overview</p>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+            </div>
             <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="card text-bg-primary">
-                        <div class="card-body">
-                            <div class="card-title">My Subjects</div>
-                            <h3><?php echo $counts['subjects']; ?></h3>
-                        </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-hover stat-card">
+                        <div class="stat-label">My Subjects</div>
+                        <div class="stat-value"><?php echo $counts['subjects']; ?></div>
+                        <div class="stat-subtext">Active subjects</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card text-bg-success">
-                        <div class="card-body">
-                            <div class="card-title">My Codes</div>
-                            <h3><?php echo $counts['codes']; ?></h3>
-                        </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-hover stat-card">
+                        <div class="stat-label">My Codes</div>
+                        <div class="stat-value"><?php echo $counts['codes']; ?></div>
+                        <div class="stat-subtext">Subject codes</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card text-bg-info">
-                        <div class="card-body">
-                            <div class="card-title">My Papers</div>
-                            <h3><?php echo $counts['papers']; ?></h3>
-                        </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-hover stat-card">
+                        <div class="stat-label">My Papers</div>
+                        <div class="stat-value"><?php echo $counts['papers']; ?></div>
+                        <div class="stat-subtext">Drafted papers</div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>

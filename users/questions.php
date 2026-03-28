@@ -98,6 +98,7 @@ if ($paper_id) {
     $questions = $qstmt->get_result();
     $qstmt->close();
 }
+$activePage = 'questions';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,29 +106,58 @@ if ($paper_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Questions - AQPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-2 sidebar p-3">
-            <h5 class="text-white">Professor</h5>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link text-white" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="subjects.php">My Subjects</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="subject_codes.php">My Subject Codes</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="papers.php">Question Papers</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="questions.php">Questions</a></li>
-                <li class="nav-item"><a class="nav-link text-danger" href="logout.php">Logout</a></li>
-            </ul>
-        </nav>
-        <main class="col-md-10 ms-sm-auto px-4 py-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1 class="h4">Manage Questions</h1>
+    <header class="topbar no-print">
+        <div class="brand">
+            <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
+            <span>AQPG</span>
+        </div>
+        <div class="top-actions">
+            <div class="nav-links d-none d-md-flex">
+                <a href="../index.php">Home</a>
+            </div>
+            <span class="role-badge">PROFESSOR</span>
+            <button class="sidebar-toggle d-lg-none" type="button" aria-label="Toggle sidebar">
+                <span style="width:16px;height:2px;background:var(--ink);display:block;box-shadow:0 5px 0 var(--ink),0 -5px 0 var(--ink);"></span>
+            </button>
+        </div>
+    </header>
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Navigation</div>
+                <div class="sidebar-menu">
+                    <a class="sidebar-link" href="dashboard.php">Dashboard</a>
+                    <a class="sidebar-link" href="subjects.php">My Subjects</a>
+                    <a class="sidebar-link" href="subject_codes.php">My Subject Codes</a>
+                    <a class="sidebar-link" href="papers.php">Question Papers</a>
+                    <a class="sidebar-link <?php echo $activePage === 'questions' ? 'active' : ''; ?>" href="questions.php">Questions</a>
+                    <a class="sidebar-link" href="logout.php">Logout</a>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-avatar">PR</div>
+                <div class="sidebar-meta">
+                    <small>Signed in</small>
+                    <strong>Professor</strong>
+                </div>
+            </div>
+        </aside>
+        <main class="app-main">
+            <div class="content-header">
                 <div>
-                    <a href="papers.php" class="btn btn-secondary">Back to Papers</a>
-                    <?php if ($paper_id): ?><a href="generate_paper.php?paper_id=<?php echo $paper_id; ?>" class="btn btn-info">Generate</a><?php endif; ?>
+                    <p class="stat-label mb-1">Questions</p>
+                    <h1 class="page-title">Manage Questions</h1>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="papers.php" class="btn btn-outline-primary">Back to Papers</a>
+                    <?php if ($paper_id): ?><a href="generate_paper.php?paper_id=<?php echo $paper_id; ?>" class="btn btn-primary">Generate</a><?php endif; ?>
                 </div>
             </div>
             <form method="get" class="row g-2 mb-4">
@@ -145,84 +175,83 @@ if ($paper_id) {
             </form>
 
             <?php if ($paper_id): ?>
-            <?php if ($message): ?><div class="alert alert-info"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
-            <div class="card mb-4">
-                <div class="card-header">Add Question</div>
-                <div class="card-body">
-                    <form method="post">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label">Question Text</label>
-                            <textarea name="question_text" class="form-control" rows="3" required></textarea>
+            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
+            <div class="card card-hover mb-4">
+                <div class="section-title">Add Question</div>
+                <form method="post" class="d-grid gap-3">
+                    <input type="hidden" name="action" value="add">
+                    <div>
+                        <label class="form-label">Question Text</label>
+                        <textarea name="question_text" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Type</label>
+                            <select name="type" id="question_type" class="form-select" required>
+                                <?php foreach ($allowedTypes as $typeOpt): ?>
+                                    <option value="<?php echo $typeOpt; ?>"><?php echo $typeOpt; ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Type</label>
-                                <select name="type" id="question_type" class="form-select" required>
-                                    <?php foreach ($allowedTypes as $typeOpt): ?>
-                                        <option value="<?php echo $typeOpt; ?>"><?php echo $typeOpt; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Marks</label>
-                                <input type="number" name="marks" class="form-control" min="1" value="1">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">CO</label>
-                                <input type="text" name="co" class="form-control">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Bloom Level</label>
-                                <input type="text" name="bloom_level" class="form-control">
-                            </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Marks</label>
+                            <input type="number" name="marks" class="form-control" min="1" value="1">
                         </div>
-                        <div id="choices-container" class="mt-3">
-                            <label class="form-label">Choices (for MCQ)</label>
-                            <?php for ($i=0;$i<4;$i++): ?>
-                            <div class="input-group mb-2">
-                                <span class="input-group-text">
-                                    <input type="radio" name="correct" value="<?php echo $i; ?>" <?php echo $i===0?'checked':''; ?>>
-                                </span>
-                                <input type="text" name="choices[]" class="form-control" placeholder="Choice <?php echo $i+1; ?>">
-                            </div>
-                            <?php endfor; ?>
+                        <div class="col-md-3">
+                            <label class="form-label">CO</label>
+                            <input type="text" name="co" class="form-control">
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Question</button>
-                    </form>
-                </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Bloom Level</label>
+                            <input type="text" name="bloom_level" class="form-control">
+                        </div>
+                    </div>
+                    <div id="choices-container" class="mt-2">
+                        <label class="form-label">Choices (for MCQ)</label>
+                        <?php for ($i=0;$i<4;$i++): ?>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">
+                                <input type="radio" name="correct" value="<?php echo $i; ?>" <?php echo $i===0?'checked':''; ?>>
+                            </span>
+                            <input type="text" name="choices[]" class="form-control" placeholder="Choice <?php echo $i+1; ?>">
+                        </div>
+                        <?php endfor; ?>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </form>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead><tr><th>ID</th><th>Question</th><th>Type</th><th>Marks</th><th>CO</th><th>Bloom</th><th>Actions</th></tr></thead>
-                    <tbody>
-                        <?php while ($q = $questions->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo $q['id']; ?></td>
-                            <td><?php echo htmlspecialchars($q['question_text']); ?></td>
-                            <td><?php echo $q['type']; ?></td>
-                            <td><?php echo $q['marks']; ?></td>
-                            <td><?php echo htmlspecialchars($q['co']); ?></td>
-                            <td><?php echo htmlspecialchars($q['bloom_level']); ?></td>
-                            <td>
-                                <form method="post" class="d-inline" onsubmit="return confirm('Delete this question?');">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+            <div class="card card-hover">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>ID</th><th>Question</th><th>Type</th><th>Marks</th><th>CO</th><th>Bloom</th><th class="text-end">Actions</th></tr></thead>
+                        <tbody>
+                            <?php while ($q = $questions->fetch_assoc()): ?>
+                            <tr>
+                                <td><?php echo $q['id']; ?></td>
+                                <td><?php echo htmlspecialchars($q['question_text']); ?></td>
+                                <td><?php echo $q['type']; ?></td>
+                                <td><?php echo $q['marks']; ?></td>
+                                <td><?php echo htmlspecialchars($q['co']); ?></td>
+                                <td><?php echo htmlspecialchars($q['bloom_level']); ?></td>
+                                <td class="text-end">
+                                    <form method="post" class="d-inline" onsubmit="return confirm('Delete this question?');">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
+                                        <button type="submit" class="btn btn-icon" aria-label="Delete question">×</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <?php else: ?>
                 <div class="alert alert-info">Select a paper to manage questions.</div>
             <?php endif; ?>
         </main>
     </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/main.js"></script>
 </body>

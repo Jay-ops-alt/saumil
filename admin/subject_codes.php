@@ -44,6 +44,7 @@ $codesStmt = $conn->prepare("SELECT sc.*, s.name AS subject_name, p.name AS prof
     LEFT JOIN professors p ON sc.professor_id=p.id ORDER BY sc.id DESC");
 $codesStmt->execute();
 $codes = $codesStmt->get_result();
+$activePage = 'subject_codes';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,63 +52,96 @@ $codes = $codesStmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Subject Codes - AQPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-2 d-md-block sidebar p-3">
-            <h5 class="text-white">Admin</h5>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link text-white" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="users.php">Users</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="subjects.php">Subjects</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="subject_codes.php">Subject Codes</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="view_papers.php">View Papers</a></li>
-                <li class="nav-item"><a class="nav-link text-danger" href="logout.php">Logout</a></li>
-            </ul>
-        </nav>
-        <main class="col-md-10 ms-sm-auto px-4 py-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1 class="h4">Subject Codes</h1>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Code</button>
+    <header class="topbar no-print">
+        <div class="brand">
+            <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
+            <span>AQPG</span>
+        </div>
+        <div class="top-actions">
+            <div class="nav-links d-none d-md-flex">
+                <a href="../index.php">Home</a>
+                <a href="view_papers.php">Papers</a>
             </div>
-            <?php if ($message): ?><div class="alert alert-info"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
-            <div class="table-responsive">
-                <table class="table table-striped" id="codeTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Subject</th>
-                            <th>Code</th>
-                            <th>Professor</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = $codes->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo $row['id']; ?></td>
-                            <td><?php echo htmlspecialchars($row['subject_name']); ?></td>
-                            <td><?php echo htmlspecialchars($row['code']); ?></td>
-                            <td><?php echo htmlspecialchars($row['professor_name']); ?></td>
-                            <td>
-                                <form method="post" class="d-inline" onsubmit="return confirm('Delete this code?');">
+            <span class="role-badge">ADMIN</span>
+            <button class="sidebar-toggle d-lg-none" type="button" aria-label="Toggle sidebar">
+                <span style="width:16px;height:2px;background:var(--ink);display:block;box-shadow:0 5px 0 var(--ink),0 -5px 0 var(--ink);"></span>
+            </button>
+        </div>
+    </header>
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Navigation</div>
+                <div class="sidebar-menu">
+                    <a class="sidebar-link" href="dashboard.php">Dashboard</a>
+                    <a class="sidebar-link" href="users.php">Users</a>
+                    <a class="sidebar-link" href="subjects.php">Subjects</a>
+                    <a class="sidebar-link <?php echo $activePage === 'subject_codes' ? 'active' : ''; ?>" href="subject_codes.php">Subject Codes</a>
+                    <a class="sidebar-link" href="view_papers.php">View Papers</a>
+                    <a class="sidebar-link" href="logout.php">Logout</a>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-avatar">AD</div>
+                <div class="sidebar-meta">
+                    <small>Signed in</small>
+                    <strong>Admin</strong>
+                </div>
+            </div>
+        </aside>
+        <main class="app-main">
+            <div class="content-header">
+                <div>
+                    <p class="stat-label mb-1">Administration</p>
+                    <h1 class="page-title">Subject Codes</h1>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Code</button>
+                </div>
+            </div>
+            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
+            <div class="card card-hover">
+                <div class="table-responsive">
+                    <table class="table align-middle" id="codeTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Subject</th>
+                                <th>Code</th>
+                                <th>Professor</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = $codes->fetch_assoc()): ?>
+                            <tr>
+                                <td><?php echo $row['id']; ?></td>
+                                <td><?php echo htmlspecialchars($row['subject_name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                <td><?php echo htmlspecialchars($row['professor_name']); ?></td>
+                                <td class="text-end">
+                                    <form method="post" class="d-inline" onsubmit="return confirm('Delete this code?');">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+                                    <button type="submit" class="btn btn-icon" aria-label="Delete code">×</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
-</div>
 
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog">
@@ -142,7 +176,7 @@ $codes = $codesStmt->get_result();
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary">Add</button>
             </div>
         </form>
@@ -153,6 +187,7 @@ $codes = $codesStmt->get_result();
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="../assets/js/main.js"></script>
 <script>
 $(function() {
     $('#codeTable').DataTable();
