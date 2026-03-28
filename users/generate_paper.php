@@ -70,7 +70,7 @@ $sections = [
             <h3>University Examination</h3>
             <p class="mb-0">Subject: <?php echo htmlspecialchars($paper['subject_name']); ?> (<?php echo htmlspecialchars($paper['code']); ?>)</p>
             <p class="mb-0">Paper Title: <?php echo htmlspecialchars($paper['title']); ?></p>
-            <p class="mb-0">Date: <?php echo date('d-m-Y'); ?></p>
+            <p class="mb-0">Date: <?php echo $paper['created_at'] ? date('d-m-Y', strtotime($paper['created_at'])) : date('d-m-Y'); ?></p>
         </div>
         <?php if ($paper['instructions']): ?>
             <div class="mb-3">

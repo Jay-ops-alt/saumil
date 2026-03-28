@@ -7,6 +7,7 @@ if (!isset($_SESSION['pro_id'])) {
 $pid = (int)$_SESSION['pro_id'];
 $paper_id = isset($_GET['paper_id']) ? (int)$_GET['paper_id'] : 0;
 $message = '';
+$allowedTypes = ['MCQ','Fill','Short','Long'];
 
 // Validate selected paper belongs to professor
 if ($paper_id) {
@@ -35,23 +36,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $paper_id) {
         $marks = (int)($_POST['marks'] ?? 0);
         $co = trim($_POST['co'] ?? '');
         $bloom = trim($_POST['bloom_level'] ?? '');
-        if ($text && in_array($type, ['MCQ','Fill','Short','Long'], true)) {
+        if ($text && in_array($type, $allowedTypes, true)) {
             $stmt = $conn->prepare('INSERT INTO questions (paper_id, question_text, type, marks, co, bloom_level) VALUES (?,?,?,?,?,?)');
             $stmt->bind_param('ississ', $paper_id, $text, $type, $marks, $co, $bloom);
             if ($stmt->execute()) {
                 $qid = $stmt->insert_id;
+                $questionSaved = true;
                 if ($type === 'MCQ' && !empty($_POST['choices']) && isset($_POST['correct'])) {
+                    $choiceData = [];
                     foreach ($_POST['choices'] as $idx => $choiceText) {
                         $ctext = trim($choiceText);
-                        if ($ctext === '') continue;
-                        $isCorrect = ((int)$_POST['correct'] === $idx) ? 1 : 0;
-                        $cstmt = $conn->prepare('INSERT INTO choices (question_id, choice_text, is_correct) VALUES (?,?,?)');
-                        $cstmt->bind_param('isi', $qid, $ctext, $isCorrect);
-                        $cstmt->execute();
-                        $cstmt->close();
+                        if ($ctext !== '') {
+                            $choiceData[] = ['idx' => $idx, 'text' => $ctext];
+                        }
+                    }
+                    if (count($choiceData) >= 2) {
+                        foreach ($choiceData as $choiceRow) {
+                            $isCorrect = ((int)$_POST['correct'] === $choiceRow['idx']) ? 1 : 0;
+                            $cstmt = $conn->prepare('INSERT INTO choices (question_id, choice_text, is_correct) VALUES (?,?,?)');
+                            $cstmt->bind_param('isi', $qid, $choiceRow['text'], $isCorrect);
+                            $cstmt->execute();
+                            $cstmt->close();
+                        }
+                    } else {
+                        $message = 'Please provide at least two choices.';
+                        $cleanup = $conn->prepare('DELETE FROM questions WHERE id=?');
+                        $cleanup->bind_param('i', $qid);
+                        $cleanup->execute();
+                        $cleanup->close();
+                        $questionSaved = false;
                     }
                 }
-                $message = 'Question added';
+                if ($questionSaved) {
+                    $message = 'Question added';
+                }
             }
             $stmt->close();
         }
@@ -141,10 +159,9 @@ if ($paper_id) {
                             <div class="col-md-3">
                                 <label class="form-label">Type</label>
                                 <select name="type" id="question_type" class="form-select" required>
-                                    <option value="MCQ">MCQ</option>
-                                    <option value="Fill">Fill</option>
-                                    <option value="Short">Short</option>
-                                    <option value="Long">Long</option>
+                                    <?php foreach ($allowedTypes as $typeOpt): ?>
+                                        <option value="<?php echo $typeOpt; ?>"><?php echo $typeOpt; ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-3">

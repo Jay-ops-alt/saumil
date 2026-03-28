@@ -6,6 +6,7 @@ if (!isset($_SESSION['pro_id'])) {
 }
 $pid = (int)$_SESSION['pro_id'];
 $message = '';
+$modalHtml = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';

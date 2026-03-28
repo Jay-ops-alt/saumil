@@ -143,7 +143,7 @@
                             $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
                             $msg = htmlspecialchars(trim($_POST['message'] ?? ''));
                             if ($name && $email && $msg) {
-                                echo '<div class="alert alert-success mt-3">Thank you! We will get back to you soon.</div>';
+                                echo '<div class="alert alert-info mt-3">Demo form only. Messages are not sent or stored.</div>';
                             } else {
                                 echo '<div class="alert alert-danger mt-3">Please provide valid details.</div>';
                             }

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->num_rows > 0) {
             $error = 'Email already registered';
         } else {
-            $hash = password_hash($password, PASSWORD_BCRYPT);
+            $hash = password_hash($password, PASSWORD_DEFAULT);
             $status = 'active';
             $stmt2 = $conn->prepare('INSERT INTO professors (name, email, password, status, created_at) VALUES (?,?,?,?,NOW())');
             $stmt2->bind_param('ssss', $name, $email, $hash, $status);

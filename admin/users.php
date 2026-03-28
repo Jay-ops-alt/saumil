@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'] ?? '';
         $status = $_POST['status'] === 'inactive' ? 'inactive' : 'active';
         if ($name && $email && $password) {
-            $hash = password_hash($password, PASSWORD_BCRYPT);
+            $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $conn->prepare('INSERT INTO professors (name, email, password, status, created_at) VALUES (?,?,?,?,NOW())');
             $stmt->bind_param('ssss', $name, $email, $hash, $status);
             if ($stmt->execute()) {
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'] ?? '';
         if ($id && $name && $email) {
             if ($password) {
-                $hash = password_hash($password, PASSWORD_BCRYPT);
+                $hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $conn->prepare('UPDATE professors SET name=?, email=?, password=?, status=? WHERE id=?');
                 $stmt->bind_param('ssssi', $name, $email, $hash, $status, $id);
             } else {

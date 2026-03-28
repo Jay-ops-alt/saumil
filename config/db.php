@@ -9,7 +9,8 @@ $db   = 'aqpg_db';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_errno) {
-    die('Failed to connect to MySQL: ' . $conn->connect_error);
+    error_log('MySQL connection failed: ' . $conn->connect_error);
+    die('Failed to connect to database.');
 }
 
 $conn->set_charset('utf8mb4');
