@@ -56,10 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$codes = $conn->prepare('SELECT sc.id, sc.code, s.name FROM subject_codes sc LEFT JOIN subjects s ON sc.subject_id=s.id WHERE sc.professor_id=?');
-$codes->bind_param('i', $pid);
-$codes->execute();
-$codeList = $codes->get_result();
+$codesStmt = $conn->prepare('SELECT sc.id, sc.code, s.name FROM subject_codes sc LEFT JOIN subjects s ON sc.subject_id=s.id WHERE sc.professor_id=?');
+$codesStmt->bind_param('i', $pid);
+$codesStmt->execute();
+$codeOptions = $codesStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 $papers = $conn->prepare('SELECT qp.*, sc.code FROM question_papers qp LEFT JOIN subject_codes sc ON qp.subject_code_id=sc.id WHERE qp.professor_id=? ORDER BY qp.id DESC');
 $papers->bind_param('i', $pid);
@@ -100,6 +100,7 @@ $paperResult = $papers->get_result();
                 <table class="table table-striped" id="paperTable">
                     <thead><tr><th>ID</th><th>Title</th><th>Subject Code</th><th>Created</th><th>Actions</th></tr></thead>
                     <tbody>
+                        <?php $modalHtml = ''; ?>
                         <?php while ($row = $paperResult->fetch_assoc()): ?>
                         <tr>
                             <td><?php echo $row['id']; ?></td>
@@ -117,6 +118,7 @@ $paperResult = $papers->get_result();
                                 <a href="generate_paper.php?paper_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">Generate</a>
                             </td>
                         </tr>
+                        <?php ob_start(); ?>
                         <div class="modal fade" id="editModal<?php echo $row['id']; ?>" tabindex="-1">
                             <div class="modal-dialog">
                                 <form method="post" class="modal-content">
@@ -138,15 +140,11 @@ $paperResult = $papers->get_result();
                                         <div class="mb-3">
                                             <label class="form-label">Subject Code</label>
                                             <select name="subject_code_id" class="form-select" required>
-                                                <?php
-                                                $codes->execute();
-                                                $codeList2 = $codes->get_result();
-                                                while ($c = $codeList2->fetch_assoc()):
-                                                ?>
+                                                <?php foreach ($codeOptions as $c): ?>
                                                     <option value="<?php echo $c['id']; ?>" <?php echo $c['id']==$row['subject_code_id']?'selected':''; ?>>
                                                         <?php echo htmlspecialchars($c['code'].' - '.$c['name']); ?>
                                                     </option>
-                                                <?php endwhile; ?>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
                                     </div>
@@ -157,10 +155,12 @@ $paperResult = $papers->get_result();
                                 </form>
                             </div>
                         </div>
+                        <?php $modalHtml .= ob_get_clean(); ?>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
             </div>
+            <?php echo $modalHtml; ?>
         </main>
     </div>
 </div>
@@ -185,9 +185,9 @@ $paperResult = $papers->get_result();
                 <div class="mb-3">
                     <label class="form-label">Subject Code</label>
                     <select name="subject_code_id" class="form-select" required>
-                        <?php while ($c = $codeList->fetch_assoc()): ?>
+                        <?php foreach ($codeOptions as $c): ?>
                             <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['code'].' - '.$c['name']); ?></option>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>

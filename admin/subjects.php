@@ -89,6 +89,7 @@ $subjects = $subjectsStmt->get_result();
                         </tr>
                     </thead>
                     <tbody>
+                        <?php $modalHtml = ''; ?>
                         <?php while ($row = $subjects->fetch_assoc()): ?>
                         <tr>
                             <td><?php echo $row['id']; ?></td>
@@ -104,6 +105,7 @@ $subjects = $subjectsStmt->get_result();
                                 </form>
                             </td>
                         </tr>
+                        <?php ob_start(); ?>
                         <div class="modal fade" id="editModal<?php echo $row['id']; ?>" tabindex="-1">
                             <div class="modal-dialog">
                                 <form method="post" class="modal-content">
@@ -137,10 +139,12 @@ $subjects = $subjectsStmt->get_result();
                                 </form>
                             </div>
                         </div>
+                        <?php $modalHtml .= ob_get_clean(); ?>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
             </div>
+            <?php echo $modalHtml; ?>
         </main>
     </div>
 </div>
