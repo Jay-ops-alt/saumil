@@ -537,14 +537,6 @@ textarea:focus {
     box-shadow: 0 2px 20px rgba(196, 18, 48, 0.08);
 }
 
-.hero-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.4), transparent 40%);
-    opacity: 0.25;
-}
-
 .pattern-surface {
     background: var(--red);
     border-radius: 18px;

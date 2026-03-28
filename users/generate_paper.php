@@ -56,49 +56,75 @@ $sections = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Printable Paper - AQPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-<div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center no-print mb-3">
-        <a href="papers.php" class="btn btn-secondary">Back</a>
-        <button class="btn btn-primary" onclick="window.print()">Print</button>
-    </div>
-    <div class="print-area border p-4 rounded">
-        <div class="text-center mb-4">
-            <h3>University Examination</h3>
-            <p class="mb-0">Subject: <?php echo htmlspecialchars($paper['subject_name']); ?> (<?php echo htmlspecialchars($paper['code']); ?>)</p>
-            <p class="mb-0">Paper Title: <?php echo htmlspecialchars($paper['title']); ?></p>
-            <p class="mb-0">Date: <?php echo $paper['created_at'] ? date('d-m-Y', strtotime($paper['created_at'])) : date('d-m-Y'); ?></p>
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center no-print mb-3 print-actions">
+            <a href="papers.php" class="btn btn-outline-primary">Back</a>
+            <button class="btn btn-primary" onclick="window.print()">Print</button>
         </div>
-        <?php if ($paper['instructions']): ?>
-            <div class="mb-3">
-                <strong>Instructions:</strong>
-                <p><?php echo nl2br(htmlspecialchars($paper['instructions'])); ?></p>
+        <div class="print-wrapper">
+            <div class="print-header">
+                <div class="print-meta">UNIVERSITY EXAMINATION</div>
+                <div class="paper-title"><?php echo htmlspecialchars($paper['title']); ?></div>
+                <div class="stat-subtext text-white">
+                    <?php echo htmlspecialchars($paper['subject_name']); ?> (<?php echo htmlspecialchars($paper['code']); ?>) · Date: <?php echo $paper['created_at'] ? date('d-m-Y', strtotime($paper['created_at'])) : date('d-m-Y'); ?>
+                </div>
             </div>
-        <?php endif; ?>
+            <div class="print-body">
+                <?php if ($paper['instructions']): ?>
+                    <div class="instruction-bar mb-3">
+                        <?php echo nl2br(htmlspecialchars($paper['instructions'])); ?>
+                    </div>
+                <?php endif; ?>
 
-        <?php foreach ($sections as $type => $questions): ?>
-            <?php if (count($questions)): ?>
-                <h5 class="mt-4"><?php echo $type === 'MCQ' ? 'Multiple Choice Questions' : ($type === 'Fill' ? 'Fill in the Blanks' : ($type === 'Short' ? 'Short Questions' : 'Long Questions')); ?></h5>
-                <ol class="mt-2">
-                    <?php foreach ($questions as $q): ?>
-                        <li class="mb-2">
-                            <div><strong><?php echo htmlspecialchars($q['question_text']); ?></strong> (<?php echo $q['marks']; ?> marks, CO: <?php echo htmlspecialchars($q['co']); ?>, Bloom: <?php echo htmlspecialchars($q['bloom_level']); ?>)</div>
-                            <?php if ($type === 'MCQ'): ?>
-                                <ul class="mt-1">
-                                    <?php foreach (fetchChoices($conn, $q['id']) as $choice): ?>
-                                        <li><?php echo htmlspecialchars($choice['choice_text']); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ol>
-            <?php endif; ?>
-        <?php endforeach; ?>
+                <?php
+                $sectionIndex = 1;
+                foreach ($sections as $type => $questions):
+                    if (count($questions)):
+                        $label = $type === 'MCQ' ? 'Multiple Choice Questions' : ($type === 'Fill' ? 'Fill in the Blanks' : ($type === 'Short' ? 'Short Questions' : 'Long Questions'));
+                ?>
+                    <div class="print-section">
+                        <div class="section-heading">
+                            <span class="circle"><?php echo $sectionIndex; ?></span>
+                            <span><?php echo $label; ?></span>
+                            <span class="stat-subtext">Marks varied</span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <?php foreach ($questions as $idx => $q): ?>
+                                <div class="question-item">
+                                    <span class="q-number"><?php echo $idx + 1; ?>.</span>
+                                    <div class="flex-grow-1">
+                                        <div><?php echo htmlspecialchars($q['question_text']); ?></div>
+                                        <div class="stat-subtext">Marks: <?php echo $q['marks']; ?> · CO: <?php echo htmlspecialchars($q['co']); ?> · Bloom: <?php echo htmlspecialchars($q['bloom_level']); ?></div>
+                                        <?php if ($type === 'MCQ'): ?>
+                                            <div class="mcq-choices">
+                                                <?php foreach (fetchChoices($conn, $q['id']) as $choice): ?>
+                                                    <span><?php echo htmlspecialchars($choice['choice_text']); ?></span>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php
+                        $sectionIndex++;
+                    endif;
+                endforeach;
+                ?>
+            </div>
+            <div class="print-footer">
+                <span>Professor ID: <?php echo htmlspecialchars($pid); ?></span>
+                <span>AQPG</span>
+            </div>
+        </div>
     </div>
-</div>
 </body>
 </html>
