@@ -11,6 +11,8 @@ The Automatic Question Paper Generator (AQPG) is a web-based application that st
 
 **Security Notice:** Passwords are hashed with `password_hash()` (bcrypt). Always keep credentials secret and rotate in production.
 
+**Quickstart:** See [QUICKSTART.md](QUICKSTART.md) for the fastest way to run AQPG locally with XAMPP.
+
 ## 2. Technology Stack
 - **Backend:** PHP 8.2, MySQL 8.2
 - **Frontend:** HTML5, CSS3, JavaScript (modern ES), Bootstrap 5
