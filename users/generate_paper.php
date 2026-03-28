@@ -89,7 +89,7 @@ $sections = [
                             <?php if ($type === 'MCQ'): ?>
                                 <ul class="mt-1">
                                     <?php foreach (fetchChoices($conn, $q['id']) as $choice): ?>
-                                        <li><?php echo htmlspecialchars($choice['choice_text']); ?><?php if ($choice['is_correct']) echo ' *'; ?></li>
+                                        <li><?php echo htmlspecialchars($choice['choice_text']); ?></li>
                                     <?php endforeach; ?>
                                 </ul>
                             <?php endif; ?>

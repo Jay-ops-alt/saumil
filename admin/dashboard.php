@@ -6,17 +6,30 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $counts = ['subjects'=>0,'codes'=>0,'papers'=>0,'professors'=>0];
-foreach (['subjects','subject_codes','question_papers','professors'] as $idx => $table) {
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM {$table}");
-    $stmt->execute();
-    $stmt->bind_result($count);
-    $stmt->fetch();
-    $stmt->close();
-    if ($table === 'subjects') $counts['subjects'] = (int)$count;
-    if ($table === 'subject_codes') $counts['codes'] = (int)$count;
-    if ($table === 'question_papers') $counts['papers'] = (int)$count;
-    if ($table === 'professors') $counts['professors'] = (int)$count;
-}
+
+$stmt = $conn->prepare('SELECT COUNT(*) FROM subjects');
+$stmt->execute();
+$stmt->bind_result($counts['subjects']);
+$stmt->fetch();
+$stmt->close();
+
+$stmt = $conn->prepare('SELECT COUNT(*) FROM subject_codes');
+$stmt->execute();
+$stmt->bind_result($counts['codes']);
+$stmt->fetch();
+$stmt->close();
+
+$stmt = $conn->prepare('SELECT COUNT(*) FROM question_papers');
+$stmt->execute();
+$stmt->bind_result($counts['papers']);
+$stmt->fetch();
+$stmt->close();
+
+$stmt = $conn->prepare('SELECT COUNT(*) FROM professors');
+$stmt->execute();
+$stmt->bind_result($counts['professors']);
+$stmt->fetch();
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
