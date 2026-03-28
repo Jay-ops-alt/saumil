@@ -64,19 +64,32 @@ $sections = [
 </head>
 <body>
     <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center no-print mb-3 print-actions">
-            <a href="papers.php" class="btn btn-outline-primary">Back</a>
-            <button class="btn btn-primary" onclick="window.print()">Print</button>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 no-print mb-3 print-actions">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <input type="text" id="headerText" class="form-control form-control-sm" style="min-width:200px;" value="UNIVERSITY EXAMINATION" placeholder="Header / Institution name">
+                <input type="text" id="watermarkText" class="form-control form-control-sm" style="min-width:180px;" value="CONFIDENTIAL" placeholder="Watermark text">
+                <input type="text" id="candidateNameInput" class="form-control form-control-sm" style="min-width:180px;" placeholder="Candidate name (optional)">
+            </div>
+            <div class="d-flex gap-2">
+                <a href="papers.php" class="btn btn-outline-primary">Back</a>
+                <button class="btn btn-primary" onclick="window.print()">Print</button>
+            </div>
         </div>
         <div class="print-wrapper">
+            <div class="watermark" aria-hidden="true"></div>
             <div class="print-header">
-                <div class="print-meta">UNIVERSITY EXAMINATION</div>
+                <div class="print-meta" id="headerDisplay" data-default="UNIVERSITY EXAMINATION">UNIVERSITY EXAMINATION</div>
                 <div class="paper-title"><?php echo htmlspecialchars($paper['title']); ?></div>
                 <div class="stat-subtext text-white">
                     <?php echo htmlspecialchars($paper['subject_name']); ?> (<?php echo htmlspecialchars($paper['code']); ?>) · Date: <?php echo $paper['created_at'] ? date('d-m-Y', strtotime($paper['created_at'])) : date('d-m-Y'); ?>
                 </div>
             </div>
             <div class="print-body">
+                <div class="exam-meta">
+                    <div class="meta-line"><span>Subject:</span><span><?php echo htmlspecialchars($paper['subject_name']); ?></span></div>
+                    <div class="meta-line"><span>Code:</span><span><?php echo htmlspecialchars($paper['code']); ?></span></div>
+                    <div class="meta-line"><span>Candidate:</span><span id="candidateDisplay">________________</span></div>
+                </div>
                 <?php if ($paper['instructions']): ?>
                     <div class="instruction-bar mb-3">
                         <?php echo nl2br(htmlspecialchars($paper['instructions'])); ?>
@@ -126,5 +139,6 @@ $sections = [
             </div>
         </div>
     </div>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

@@ -604,6 +604,25 @@ textarea:focus {
     border-radius: 14px;
     border: 1px solid var(--border);
     overflow: hidden;
+    position: relative;
+}
+
+.watermark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--heading-font);
+    font-size: 64px;
+    letter-spacing: 0.25em;
+    color: rgba(196, 18, 48, 0.08);
+    transform: rotate(-24deg);
+    text-transform: uppercase;
+    pointer-events: none;
+    user-select: none;
+    padding: 2rem;
+    text-align: center;
+    z-index: 0;
 }
 
 .print-header {
@@ -611,6 +630,8 @@ textarea:focus {
     color: #fff;
     text-align: center;
     padding: 1.25rem 1rem;
+    position: relative;
+    z-index: 1;
 }
 
 .print-header .paper-title {
@@ -628,6 +649,23 @@ textarea:focus {
 
 .print-body {
     padding: 1.5rem 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.exam-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.meta-line span:first-child {
+    font-weight: 700;
+    color: var(--ink);
+    margin-right: 6px;
 }
 
 .instruction-bar {
@@ -700,6 +738,8 @@ textarea:focus {
     justify-content: space-between;
     font-size: 12px;
     color: var(--muted);
+    position: relative;
+    z-index: 1;
 }
 
 .print-actions {
@@ -753,5 +793,8 @@ textarea:focus {
     }
     .print-actions {
         display: none !important;
+    }
+    .watermark {
+        font-size: 72px;
     }
 }
