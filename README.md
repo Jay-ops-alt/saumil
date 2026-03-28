@@ -9,9 +9,11 @@ The Automatic Question Paper Generator (AQPG) is a web-based application that st
 - Provide a structured, reusable question bank
 - Enable easy generation and printing of question papers
 
+**Security Notice:** The current implementation hashes passwords with MD5 (cryptographically broken). Replace with `password_hash` (bcrypt/Argon2) before any real-world use; the system is only suitable for local prototyping until this is fixed.
+
 ## 2. Technology Stack
 - **Backend:** PHP 8.2, MySQL 8.2
-- **Frontend:** HTML5, CSS3, JavaScript (ES12), Bootstrap 5
+- **Frontend:** HTML5, CSS3, JavaScript (modern ES), Bootstrap 5
 - **Environment:** XAMPP (Apache + MySQL), phpMyAdmin
 - **Editor:** Visual Studio Code
 
@@ -61,7 +63,8 @@ aqpg/
 Key sections: Navbar (dark theme), hero with CTA, about, team, reviews, contact (form, address, email, phone), footer. Designed for responsive display.
 
 ## 8. Admin Panel
-- **Login:** Secure login with MD5 hashing, error on invalid credentials
+- **Login:** MD5-hashed login (legacy) with error on invalid credentials
+  - **Security warning:** Replace MD5 with `password_hash` (bcrypt/Argon2) immediately; do not use MD5 beyond prototyping.
 - **Dashboard:** Totals for subjects, subject codes, question papers
 - **User Management:** Add, edit, delete users
 - **Subject Management:** Create, update, activate/deactivate subjects
@@ -113,7 +116,7 @@ Ensures secure access and prevents unauthorized usage.
 
 ## 18. Security Features
 - Session-based authentication
-- Password hashing (MD5)
+- Critical warning: passwords are hashed with MD5 (cryptographically broken); system is unsuitable beyond local development until migrated to `password_hash` (bcrypt/Argon2)
 - Input validation
 - Role-based access control
 
@@ -126,7 +129,9 @@ Ensures secure access and prevents unauthorized usage.
 
 ## 20. Default Credentials
 - **Admin:** Username `admin`, Password `admin123`
-- **Professor:** Email `avanipatel1810@gmail.com`, Password `Avani@123`
+- **Professor:** Email `professor@example.com`, Password `Avani@123`
+
+> Use these only for local development and replace with strong unique credentials in any deployed environment.
 
 ## 21. Advantages
 - Saves time and reduces manual effort
@@ -134,7 +139,7 @@ Ensures secure access and prevents unauthorized usage.
 - Easy to use and scalable
 
 ## 22. Limitations
-- Uses MD5 (not highly secure)
+- Uses MD5 (not highly secure) — replace with modern hashing as a priority
 - No AI-based question generation
 - Single admin system
 
