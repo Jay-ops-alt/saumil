@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `professors` (
   `name` VARCHAR(150) NOT NULL,
   `email` VARCHAR(150) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
-  `status` ENUM('active','inactive') NOT NULL DEFAULT 'active',
+  `status` ENUM('pending','active','inactive') NOT NULL DEFAULT 'pending',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -72,12 +72,13 @@ CREATE TABLE IF NOT EXISTS `choices` (
   CONSTRAINT fk_c_question FOREIGN KEY (`question_id`) REFERENCES questions(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed admin
-INSERT INTO admin (username, password) VALUES
-('admin', '$2y$10$lsRR.gYOeXKjMERzrnhwz.v2/iRCmN1fAfvluvsWR9nwTDHgy/ngS')
-ON DUPLICATE KEY UPDATE username=VALUES(username);
-
--- Seed professor
-INSERT INTO professors (name, email, password, status) VALUES
-('Default Professor', 'professor@example.com', '$2y$10$r6Bf3.kjIEUvKN.bzIl9muuuP05bkTy9vJcaQBcn82rIxmM3o3sme', 'active')
-ON DUPLICATE KEY UPDATE email=VALUES(email);
+-- Password reset tokens
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `professor_id` INT NOT NULL,
+  `token_hash` CHAR(64) NOT NULL,
+  `expires_at` DATETIME NOT NULL,
+  `used` TINYINT(1) NOT NULL DEFAULT 0,
+  INDEX (`token_hash`),
+  CONSTRAINT fk_pr_prof FOREIGN KEY (`professor_id`) REFERENCES professors(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

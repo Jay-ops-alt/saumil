@@ -7,6 +7,13 @@ if (isset($_SESSION['admin_id'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_post_csrf();
+    $rateKey = 'admin_login';
+    if (login_rate_limited($rateKey)) {
+        $error = 'Too many attempts. Please wait and try again.';
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -16,11 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $stmt->bind_result($adminId, $hash);
         if ($stmt->fetch() && password_verify($password, $hash)) {
+            session_regenerate_id(true);
             $_SESSION['admin_id'] = $adminId;
+            clear_login_attempts($rateKey);
             header('Location: dashboard.php');
             exit;
         } else {
             $error = 'Invalid credentials';
+            record_login_attempt($rateKey);
         }
         $stmt->close();
     } else {
@@ -38,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -63,9 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h1 class="page-title" style="font-size:28px;">Admin Sign In</h1>
                         </div>
                         <?php if ($error): ?>
-                            <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+                            <div class="alert alert-danger"><?php echo htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div>
                         <?php endif; ?>
                         <form method="post" class="d-grid gap-3">
+                            <?php csrf_input(); ?>
                             <div>
                                 <label class="form-label">Username</label>
                                 <input type="text" name="username" class="form-control" required>

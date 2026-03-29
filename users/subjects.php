@@ -62,6 +62,8 @@ $activePage = 'subjects';
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -111,7 +113,7 @@ $activePage = 'subjects';
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Subject</button>
                 </div>
             </div>
-            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
+            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div><?php endif; ?>
             <div class="card card-hover">
                 <div class="table-responsive">
                     <table class="table align-middle" id="subjectTable">
@@ -123,12 +125,13 @@ $activePage = 'subjects';
                             <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $row['id']; ?></td>
-                                <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['description']); ?></td>
+                                <td><?php echo htmlspecialchars($row['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($row['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
                                 <td><span class="badge <?php echo $row['status']==='active'?'badge-success':'badge-secondary'; ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                 <td class="text-end d-flex gap-1 justify-content-end">
                                     <button class="btn btn-icon" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['id']; ?>" aria-label="Edit subject">✎</button>
                                     <form method="post" onsubmit="return confirm('Delete this subject?');">
+                                        <?php csrf_input(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                         <button type="submit" class="btn btn-icon" aria-label="Delete subject">×</button>
@@ -139,6 +142,7 @@ $activePage = 'subjects';
                             <div class="modal fade" id="editModal<?php echo $row['id']; ?>" tabindex="-1">
                                 <div class="modal-dialog">
                                     <form method="post" class="modal-content">
+                                        <?php csrf_input(); ?>
                                         <div class="modal-header">
                                             <h5 class="modal-title">Edit Subject</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -148,11 +152,11 @@ $activePage = 'subjects';
                                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                             <div class="mb-3">
                                                 <label class="form-label">Name</label>
-                                                <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($row['name']); ?>" required>
+                                                    <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($row['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>" required>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Description</label>
-                                                <textarea name="description" class="form-control" rows="3"><?php echo htmlspecialchars($row['description']); ?></textarea>
+                                                    <textarea name="description" class="form-control" rows="3"><?php echo htmlspecialchars($row['description'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Status</label>
@@ -182,6 +186,7 @@ $activePage = 'subjects';
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog">
         <form method="post" class="modal-content">
+            <?php csrf_input(); ?>
             <div class="modal-header">
                 <h5 class="modal-title">Add Subject</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
