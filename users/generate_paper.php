@@ -117,7 +117,7 @@ $sections = [
                                     <span class="q-number"><?php echo $idx + 1; ?>.</span>
                                     <div class="flex-grow-1">
                                         <div><?php echo purify_html($q['question_text']); ?></div>
-                                         <div class="stat-subtext">Marks: <?php echo $q['marks']; ?> · CO: <?php echo htmlspecialchars($q['co'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?> · Bloom: <?php echo htmlspecialchars($q['bloom_level'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div>
+                                         <div class="stat-subtext">Marks: <?php echo htmlspecialchars($q['marks'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?> · CO: <?php echo htmlspecialchars($q['co'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?> · Bloom: <?php echo htmlspecialchars($q['bloom_level'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div>
                                         <?php if ($type === 'MCQ'): ?>
                                             <div class="mcq-choices">
                                                 <?php foreach (fetchChoices($conn, $q['id']) as $choice): ?>

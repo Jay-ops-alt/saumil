@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $subject = 'AQPG contact form';
                 $body = "Name: {$name}\nEmail: {$email}\n\nMessage:\n{$msg}";
                 $headers = "From: {$from}\r\nReply-To: {$email}";
-                if (@mail($to, $subject, $body, $headers)) {
+                if (mail($to, $subject, $body, $headers)) {
                     $contactStatus = 'Thank you for reaching out. We will get back to you soon.';
                 } else {
                     $contactError = 'Message could not be sent right now. Please try again later.';

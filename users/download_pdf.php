@@ -82,5 +82,6 @@ $dompdf = new Dompdf\Dompdf();
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'portrait');
 $dompdf->render();
-$dompdf->stream('paper-' . $paper_id . '.pdf', ['Attachment' => true]);
+$fileName = 'paper-' . (int)$paper_id . '.pdf';
+$dompdf->stream($fileName, ['Attachment' => true]);
 exit;

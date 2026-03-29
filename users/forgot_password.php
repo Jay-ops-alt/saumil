@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $link = $baseUrl . '/users/reset_password.php?token=' . urlencode($token);
             $from = app_env('MAIL_FROM', 'no-reply@aqpg.local');
             $headers = "From: {$from}\r\n";
-            @mail($email, 'AQPG password reset', "Use the link to reset your password:\n{$link}\nThis link expires in 1 hour.", $headers);
+            mail($email, 'AQPG password reset', "Use the link to reset your password:\n{$link}\nThis link expires in 1 hour.", $headers);
         } else {
             $stmt->close();
         }
