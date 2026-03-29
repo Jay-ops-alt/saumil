@@ -98,7 +98,7 @@
         }
         .btn:hover:not(:disabled) { transform: translateY(-1px); }
         .card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)) , var(--card);
+            background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)), var(--card);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 20px;
@@ -238,8 +238,6 @@
         .grand-total.bad { border-color: rgba(239,68,68,0.7); background: rgba(239,68,68,0.08); color: #fca5a5; }
         .hidden { display: none !important; }
         .preview-box {
-            background: #0b1223;
-            color: #0a0a0a;
             padding: 18px;
             border-radius: 12px;
             border: 1px solid var(--border);
@@ -483,12 +481,15 @@
         const generateBtn = el('generateBtn');
         const loadingSpinner = el('loadingSpinner');
         const generationError = el('generationError');
+        const statusMessage = document.createElement('div');
+        statusMessage.className = 'small';
+        generationError.parentElement.insertBefore(statusMessage, generationError.nextSibling);
         const paperOutput = el('paperOutput');
         const languageSelect = el('languageSelect');
         const otherLanguage = el('otherLanguage');
         const apiKeyInput = el('apiKey');
 
-        function uid() { return 'id-' + Math.random().toString(36).slice(2, 8); }
+        function generateUniqueId() { return 'id-' + Math.random().toString(36).slice(2, 8); }
 
         function formatSize(bytes) {
             if (!bytes) return '0 B';
@@ -499,10 +500,10 @@
 
         function defaultSections() {
             return [
-                { id: uid(), name: 'MCQ', count: 10, marksEach: 1 },
-                { id: uid(), name: 'Fill in Blanks', count: 5, marksEach: 1 },
-                { id: uid(), name: 'Short Answer', count: 5, marksEach: 4 },
-                { id: uid(), name: 'Long Answer', count: 2, marksEach: 10 }
+                { id: generateUniqueId(), name: 'MCQ', count: 10, marksEach: 1 },
+                { id: generateUniqueId(), name: 'Fill in Blanks', count: 5, marksEach: 1 },
+                { id: generateUniqueId(), name: 'Short Answer', count: 5, marksEach: 4 },
+                { id: generateUniqueId(), name: 'Long Answer', count: 2, marksEach: 10 }
             ];
         }
 
@@ -580,7 +581,7 @@
                 nameInput.name = 'sectionName';
                 nameInput.type = 'text';
                 nameInput.value = section.name;
-                nameInput.oninput = (e) => { section.name = e.target.value; buildPromptPreview(); };
+                nameInput.oninput = (e) => { section.name = e.target.value; };
 
                 const countInput = document.createElement('input');
                 countInput.name = 'count';
@@ -628,24 +629,29 @@
             const grand = state.sections.reduce((sum, s) => sum + (s.count * s.marksEach), 0);
             grandTotalValue.textContent = `${grand} marks`;
             const target = Number(totalMarksInput.value || 0);
-            const match = grand === target && state.sections.length > 0;
+            const match = grand === target && state.sections.length > 0 && target > 0;
             grandTotalBox.classList.toggle('ok', match);
             grandTotalBox.classList.toggle('bad', !match);
             updateGenerateState();
         }
 
         function updateMasterText() {
-            state.masterText = state.files.map(f => f.textContent || '').filter(Boolean).join('\n\n');
+            const textParts = state.files.map(f => f.textContent || '').filter(Boolean);
+            if (state.files.some(f => f.imageData)) {
+                textParts.push('[Images included separately for Claude vision processing]');
+            }
+            state.masterText = textParts.join('\n\n');
         }
 
         function updateGenerateState() {
             const hasFiles = state.files.length > 0;
             const target = Number(totalMarksInput.value || 0);
             const grand = state.sections.reduce((sum, s) => sum + (s.count * s.marksEach), 0);
-            const match = hasFiles && grand === target && target >= 0;
+            const match = hasFiles && grand === target && target > 0;
             generateBtn.disabled = !match || state.isGenerating;
             if (!match && state.currentStep >= 3) {
-                generationError.textContent = 'Please ensure at least one file is uploaded and the marks total matches the Total Marks value.';
+                generationError.textContent = 'Please ensure at least one file is uploaded, Total Marks is greater than zero, and the marks total matches the Total Marks value.';
+                statusMessage.textContent = '';
             } else {
                 generationError.textContent = '';
             }
@@ -667,7 +673,7 @@
                 uploadError.textContent = 'Unsupported file type. Accepted: ' + allowedExtensions.join(', ');
                 return;
             }
-            const entry = { id: uid(), name: file.name, size: file.size, ready: false, textContent: '', imageData: null, error: null };
+            const entry = { id: generateUniqueId(), name: file.name, size: file.size, ready: false, textContent: '', imageData: null, error: null };
             state.files.push(entry);
             renderFiles();
 
@@ -838,8 +844,11 @@ ${sourceText}`;
                 paperOutput.textContent = text;
                 state.currentStep = 4;
                 renderStepVisibility();
+                generationError.textContent = '';
+                statusMessage.textContent = 'Paper generated successfully.';
             } catch (err) {
                 generationError.textContent = err.message || 'Generation failed. Please try again.';
+                statusMessage.textContent = '';
             } finally {
                 state.isGenerating = false;
                 loadingSpinner.classList.add('hidden');
@@ -852,20 +861,16 @@ ${sourceText}`;
                 generationError.textContent = 'Please generate once before using regenerate.';
                 return;
             }
-            // rebuild payload to capture any config tweaks
+            // generatePaper rebuilds payload using the latest configuration
             generatePaper();
         }
 
         function copyToClipboard() {
             if (!state.generatedText) return;
             navigator.clipboard.writeText(state.generatedText).then(() => {
-                generationError.textContent = 'Copied to clipboard!';
-                setTimeout(() => generationError.textContent = '', 2000);
+                statusMessage.textContent = 'Copied to clipboard!';
+                setTimeout(() => statusMessage.textContent = '', 2000);
             });
-        }
-
-        function buildPromptPreview() {
-            // No-op placeholder for potential live preview; keeps structure extensible.
         }
 
         // Event bindings
@@ -892,8 +897,9 @@ ${sourceText}`;
         el('saveKeyBtn').addEventListener('click', () => {
             const key = apiKeyInput.value.trim();
             localStorage.setItem('claude_api_key', key);
-            generationError.textContent = 'API key saved locally.';
-            setTimeout(() => generationError.textContent = '', 1500);
+            statusMessage.textContent = 'API key saved locally.';
+            generationError.textContent = '';
+            setTimeout(() => statusMessage.textContent = '', 1500);
         });
 
         document.querySelectorAll('#difficultyToggle button').forEach(btn => {
@@ -913,7 +919,7 @@ ${sourceText}`;
 
         totalMarksInput.addEventListener('input', updateTotals);
         el('addSection').addEventListener('click', () => {
-            state.sections.push({ id: uid(), name: 'New Section', count: 0, marksEach: 1 });
+            state.sections.push({ id: generateUniqueId(), name: 'New Section', count: 0, marksEach: 1 });
             renderSections();
         });
 
