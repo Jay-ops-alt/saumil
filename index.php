@@ -1,4 +1,52 @@
-<?php require_once __DIR__ . '/config/db.php'; ?>
+<?php
+require_once __DIR__ . '/config/db.php';
+
+$contactStatus = '';
+$contactError = '';
+$stats = ['questions' => 0, 'papers' => 0];
+
+if ($countStmt = $conn->prepare('SELECT COUNT(*) FROM questions')) {
+    $countStmt->execute();
+    $countStmt->bind_result($stats['questions']);
+    $countStmt->fetch();
+    $countStmt->close();
+}
+if ($paperStmt = $conn->prepare('SELECT COUNT(*) FROM question_papers')) {
+    $paperStmt->execute();
+    $paperStmt->bind_result($stats['papers']);
+    $paperStmt->fetch();
+    $paperStmt->close();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $honeypot = trim($_POST['website'] ?? '');
+    if ($honeypot !== '') {
+        $contactError = 'Unable to submit request right now.';
+    } else {
+        $name = trim($_POST['name'] ?? '');
+        $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
+        $msg = trim($_POST['message'] ?? '');
+        if ($name && $email && $msg) {
+            $to = app_env('CONTACT_EMAIL', '');
+            if ($to) {
+                $from = app_env('MAIL_FROM', $email);
+                $subject = 'AQPG contact form';
+                $body = "Name: {$name}\nEmail: {$email}\n\nMessage:\n{$msg}";
+                $headers = "From: {$from}\r\nReply-To: {$email}";
+                if (@mail($to, $subject, $body, $headers)) {
+                    $contactStatus = 'Thank you for reaching out. We will get back to you soon.';
+                } else {
+                    $contactError = 'Message could not be sent right now. Please try again later.';
+                }
+            } else {
+                $contactError = 'Contact email is not configured.';
+            }
+        } else {
+            $contactError = 'Please provide valid details.';
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +57,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -75,12 +125,12 @@
             <div class="stats-strip">
                 <div class="card card-hover stat-card">
                     <div class="stat-label">Questions curated</div>
-                    <div class="stat-value">12k</div>
+                    <div class="stat-value"><?php echo number_format((int)$stats['questions']); ?></div>
                     <div class="stat-subtext">Across subjects & outcomes</div>
                 </div>
                 <div class="card card-hover stat-card">
                     <div class="stat-label">Papers generated</div>
-                    <div class="stat-value">2.4k</div>
+                    <div class="stat-value"><?php echo number_format((int)$stats['papers']); ?></div>
                     <div class="stat-subtext">Printable, balanced layouts</div>
                 </div>
                 <div class="card card-hover stat-card">
@@ -153,6 +203,11 @@
                         <div class="card card-hover">
                             <h3 class="section-title">Contact us</h3>
                             <form method="post" class="d-grid gap-3">
+                                <?php csrf_input(); ?>
+                                <div style="position:absolute; left:-9999px;" aria-hidden="true">
+                                    <label>Website</label>
+                                    <input type="text" name="website" tabindex="-1" autocomplete="off">
+                                </div>
                                 <div>
                                     <label class="form-label">Name</label>
                                     <input type="text" name="name" class="form-control" required>
@@ -166,18 +221,12 @@
                                     <textarea name="message" class="form-control" rows="4" required></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">Send Message</button>
-                                <?php
-                                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                    $name = htmlspecialchars(trim($_POST['name'] ?? ''));
-                                    $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
-                                    $msg = htmlspecialchars(trim($_POST['message'] ?? ''));
-                                    if ($name && $email && $msg) {
-                                        echo '<div class="alert alert-info mt-2">Demo form only. Messages are not sent or stored.</div>';
-                                    } else {
-                                        echo '<div class="alert alert-danger mt-2">Please provide valid details.</div>';
-                                    }
-                                }
-                                ?>
+                                <?php if ($contactStatus): ?>
+                                    <div class="alert alert-info mt-2"><?php echo htmlspecialchars($contactStatus, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div>
+                                <?php endif; ?>
+                                <?php if ($contactError): ?>
+                                    <div class="alert alert-danger mt-2"><?php echo htmlspecialchars($contactError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div>
+                                <?php endif; ?>
                             </form>
                         </div>
                     </div>

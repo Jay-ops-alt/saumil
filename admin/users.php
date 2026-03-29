@@ -13,7 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim($_POST['name'] ?? '');
         $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
         $password = $_POST['password'] ?? '';
-        $status = $_POST['status'] === 'inactive' ? 'inactive' : 'active';
+        $statusInput = $_POST['status'] ?? 'pending';
+        $status = in_array($statusInput, ['active','inactive','pending'], true) ? $statusInput : 'pending';
         if ($name && $email && $password) {
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $conn->prepare('INSERT INTO professors (name, email, password, status, created_at) VALUES (?,?,?,?,NOW())');
@@ -29,7 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         $name = trim($_POST['name'] ?? '');
         $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
-        $status = $_POST['status'] === 'inactive' ? 'inactive' : 'active';
+        $statusInput = $_POST['status'] ?? 'pending';
+        $status = in_array($statusInput, ['active','inactive','pending'], true) ? $statusInput : 'pending';
         $password = $_POST['password'] ?? '';
         if ($id && $name && $email) {
             if ($password) {
@@ -73,6 +75,8 @@ $activePage = 'users';
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -124,7 +128,7 @@ $activePage = 'users';
                 </div>
             </div>
             <?php if ($message): ?>
-                <div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div>
+                <div class="alert alert-info mb-3"><?php echo htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div>
             <?php endif; ?>
             <div class="card card-hover">
                 <div class="table-responsive">
@@ -144,18 +148,19 @@ $activePage = 'users';
                             <?php while ($row = $professors->fetch_assoc()): ?>
                                 <tr>
                                     <td><?php echo $row['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($row['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
                                     <td><span class="badge <?php echo $row['status'] === 'active' ? 'badge-success' : 'badge-secondary'; ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                     <td><?php echo $row['created_at']; ?></td>
                                     <td class="text-end d-flex gap-1 justify-content-end">
                                         <button class="btn btn-icon" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['id']; ?>" aria-label="Edit professor">✎</button>
-                                        <form method="post" onsubmit="return confirm('Delete this professor?');">
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                            <button type="submit" class="btn btn-icon" aria-label="Delete professor">×</button>
-                                        </form>
-                                    </td>
+                                         <form method="post" onsubmit="return confirm('Delete this professor?');">
+                                             <?php csrf_input(); ?>
+                                             <input type="hidden" name="action" value="delete">
+                                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                             <button type="submit" class="btn btn-icon" aria-label="Delete professor">×</button>
+                                         </form>
+                                     </td>
                                 </tr>
                                 <?php
                                 ob_start();
@@ -163,6 +168,7 @@ $activePage = 'users';
                                 <div class="modal fade" id="editModal<?php echo $row['id']; ?>" tabindex="-1">
                                     <div class="modal-dialog">
                                         <form method="post" class="modal-content">
+                                            <?php csrf_input(); ?>
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Edit Professor</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -172,11 +178,11 @@ $activePage = 'users';
                                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                                 <div class="mb-3">
                                                     <label class="form-label">Name</label>
-                                                    <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($row['name']); ?>" required>
+                                                     <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($row['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>" required>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Email</label>
-                                                    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($row['email']); ?>" required>
+                                                     <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($row['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>" required>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Password (leave blank to keep)</label>
@@ -185,6 +191,7 @@ $activePage = 'users';
                                                 <div class="mb-3">
                                                     <label class="form-label">Status</label>
                                                     <select name="status" class="form-select">
+                                                        <option value="pending" <?php echo $row['status']==='pending'?'selected':''; ?>>Pending</option>
                                                         <option value="active" <?php echo $row['status']==='active'?'selected':''; ?>>Active</option>
                                                         <option value="inactive" <?php echo $row['status']==='inactive'?'selected':''; ?>>Inactive</option>
                                                     </select>
@@ -213,6 +220,7 @@ $activePage = 'users';
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog">
         <form method="post" class="modal-content">
+            <?php csrf_input(); ?>
             <div class="modal-header">
                 <h5 class="modal-title">Add Professor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -234,6 +242,7 @@ $activePage = 'users';
                 <div class="mb-3">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
+                        <option value="pending">Pending</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>

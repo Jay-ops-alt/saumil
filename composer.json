@@ -1,0 +1,7 @@
+{
+    "require": {
+        "vlucas/phpdotenv": "*",
+        "ezyang/htmlpurifier": "*",
+        "dompdf/dompdf": "*"
+    }
+}

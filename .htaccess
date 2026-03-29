@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^admin/includes/ - [F,L]
+    RewriteRule ^users/includes/ - [F,L]
+</IfModule>

@@ -78,6 +78,8 @@ $activePage = 'papers';
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -127,7 +129,7 @@ $activePage = 'papers';
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Create Paper</button>
                 </div>
             </div>
-            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
+            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div><?php endif; ?>
             <div class="card card-hover">
                 <div class="table-responsive">
                     <table class="table align-middle" id="paperTable">
@@ -137,12 +139,13 @@ $activePage = 'papers';
                             <?php while ($row = $paperResult->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $row['id']; ?></td>
-                                <td><?php echo htmlspecialchars($row['title']); ?></td>
-                                <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                <td><?php echo htmlspecialchars($row['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($row['code'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
                                 <td><?php echo $row['created_at']; ?></td>
                                 <td class="text-end d-flex gap-1 justify-content-end flex-wrap">
                                     <button class="btn btn-icon" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['id']; ?>" aria-label="Edit paper">✎</button>
                                     <form method="post" onsubmit="return confirm('Delete this paper?');">
+                                        <?php csrf_input(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                         <button type="submit" class="btn btn-icon" aria-label="Delete paper">×</button>
@@ -155,6 +158,7 @@ $activePage = 'papers';
                             <div class="modal fade" id="editModal<?php echo $row['id']; ?>" tabindex="-1">
                                 <div class="modal-dialog">
                                     <form method="post" class="modal-content">
+                                        <?php csrf_input(); ?>
                                         <div class="modal-header">
                                             <h5 class="modal-title">Edit Paper</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -164,18 +168,18 @@ $activePage = 'papers';
                                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                             <div class="mb-3">
                                                 <label class="form-label">Title</label>
-                                                <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($row['title']); ?>" required>
+                                                <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($row['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>" required>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Instructions</label>
-                                                <textarea name="instructions" class="form-control" rows="4"><?php echo htmlspecialchars($row['instructions']); ?></textarea>
+                                                <textarea name="instructions" class="form-control" rows="4"><?php echo htmlspecialchars($row['instructions'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></textarea>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Subject Code</label>
                                                 <select name="subject_code_id" class="form-select" required>
                                                     <?php foreach ($codeOptions as $c): ?>
                                                         <option value="<?php echo $c['id']; ?>" <?php echo $c['id']==$row['subject_code_id']?'selected':''; ?>>
-                                                            <?php echo htmlspecialchars($c['code'].' - '.$c['name']); ?>
+                                                             <?php echo htmlspecialchars($c['code'].' - '.$c['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
@@ -201,6 +205,7 @@ $activePage = 'papers';
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog">
         <form method="post" class="modal-content">
+            <?php csrf_input(); ?>
             <div class="modal-header">
                 <h5 class="modal-title">Create Paper</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -219,7 +224,7 @@ $activePage = 'papers';
                     <label class="form-label">Subject Code</label>
                     <select name="subject_code_id" class="form-select" required>
                         <?php foreach ($codeOptions as $c): ?>
-                            <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['code'].' - '.$c['name']); ?></option>
+                            <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['code'].' - '.$c['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

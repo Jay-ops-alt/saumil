@@ -58,8 +58,8 @@ aqpg/
 
 ## 6. Database Connection
 - Centralized MySQLi connection file included in all pages
-- UTF-8 encoding
-- Handles connection errors
+- Loads credentials from `.env` (copy `.env.example`)
+- UTF-8 encoding and secure session options
 
 ## 7. Public Home Page
 Key sections: Navbar (dark theme), hero with CTA, about, team, reviews, contact (form, address, email, phone), footer. Designed for responsive display.
@@ -73,8 +73,9 @@ Key sections: Navbar (dark theme), hero with CTA, about, team, reviews, contact 
 - **Question Paper Viewing:** View papers created by professors
 
 ## 9. Professor Panel
-- **Registration:** Full validation with password confirmation
+- **Registration:** Full validation with password confirmation (accounts start as `pending`)
 - **Login:** Email-based authentication with session management
+- **Password reset:** Email-based reset links with expiry
 - **Dashboard:** Personalized statistics (subjects, codes, papers)
 
 ## 10. Subject Management (Professor)
@@ -116,20 +117,21 @@ Ensures secure access and prevents unauthorized usage.
 - **Responsive:** Bootstrap grid for multi-device support
 
 ## 18. Security Features
-- Session-based authentication
+- Session-based authentication with secure cookies and regenerated IDs on login
 - Password hashing with `password_hash`/`password_verify`
-- Input validation and prepared statements
+- CSRF tokens on all POST forms and basic login rate limiting
+- Input validation, prepared statements, and HTML Purifier for stored question text
 
 ## 19. Installation Guide
 1. Install XAMPP and start Apache & MySQL.
-2. Copy this repository folder to `htdocs` as `aqpg/`.
-3. Import `aqpg.sql` using phpMyAdmin (creates `aqpg_db` with tables and seed data).
-4. Update `config/db.php` if your MySQL credentials differ from `root`/blank.
-5. Visit `http://localhost/aqpg/` for the public page, `http://localhost/aqpg/admin/login.php` for admin, and `http://localhost/aqpg/users/login.php` for professors.
+2. Run `composer install` to pull dependencies.
+3. Copy `.env.example` to `.env` and set `DB_*`, `CONTACT_EMAIL`, `MAIL_FROM`, and `APP_URL`.
+4. Import `aqpg.sql` using phpMySQL/phpMyAdmin to create schema (professors default to `pending`).
+5. For local development only, optionally import `seed_dev.sql` to create sample admin/professor accounts.
+6. Visit `http://localhost/aqpg/` for the public page, `http://localhost/aqpg/admin/login.php` for admin, and `http://localhost/aqpg/users/login.php` for professors.
 
 ## 20. Default Credentials
-- **Admin:** Username `admin`, Password `admin123`
-- **Professor:** Email `professor@example.com`, Password `Avani@123`
+Seeded credentials now live in `seed_dev.sql` for development; production setups should create an admin account manually before enabling logins.
 
 ## 21. Notes
 - DataTables and Bootstrap 5 are loaded via CDN.

@@ -110,6 +110,8 @@ $activePage = 'questions';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -167,7 +169,7 @@ $activePage = 'questions';
                         <option value="">Choose...</option>
                         <?php while ($p = $paperList->fetch_assoc()): ?>
                             <option value="<?php echo $p['id']; ?>" <?php echo $paper_id==$p['id']?'selected':''; ?>>
-                                <?php echo htmlspecialchars($p['title']); ?>
+                                <?php echo htmlspecialchars($p['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>
                             </option>
                         <?php endwhile; ?>
                     </select>
@@ -175,10 +177,11 @@ $activePage = 'questions';
             </form>
 
             <?php if ($paper_id): ?>
-            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
+            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div><?php endif; ?>
             <div class="card card-hover mb-4">
                 <div class="section-title">Add Question</div>
                 <form method="post" class="d-grid gap-3">
+                    <?php csrf_input(); ?>
                     <input type="hidden" name="action" value="add">
                     <div>
                         <label class="form-label">Question Text</label>
@@ -229,13 +232,14 @@ $activePage = 'questions';
                             <?php while ($q = $questions->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $q['id']; ?></td>
-                                <td><?php echo htmlspecialchars($q['question_text']); ?></td>
+                                <td><?php echo purify_html($q['question_text']); ?></td>
                                 <td><?php echo $q['type']; ?></td>
                                 <td><?php echo $q['marks']; ?></td>
-                                <td><?php echo htmlspecialchars($q['co']); ?></td>
-                                <td><?php echo htmlspecialchars($q['bloom_level']); ?></td>
+                                <td><?php echo htmlspecialchars($q['co'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($q['bloom_level'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
                                 <td class="text-end">
                                     <form method="post" class="d-inline" onsubmit="return confirm('Delete this question?');">
+                                        <?php csrf_input(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $q['id']; ?>">
                                         <button type="submit" class="btn btn-icon" aria-label="Delete question">×</button>

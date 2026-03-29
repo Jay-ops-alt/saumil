@@ -6,6 +6,13 @@ if (isset($_SESSION['pro_id'])) {
 }
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_post_csrf();
+    $rateKey = 'prof_login';
+    if (login_rate_limited($rateKey)) {
+        $error = 'Too many login attempts. Please try again later.';
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
     $password = $_POST['password'] ?? '';
     if ($email && $password) {
@@ -14,11 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $stmt->bind_result($pid, $hash, $status);
         if ($stmt->fetch() && $status === 'active' && password_verify($password, $hash)) {
+            session_regenerate_id(true);
             $_SESSION['pro_id'] = $pid;
+            clear_login_attempts($rateKey);
             header('Location: dashboard.php');
             exit;
         } else {
-            $error = 'Invalid credentials or inactive account';
+            $error = 'Invalid credentials or inactive/pending account';
+            record_login_attempt($rateKey);
         }
         $stmt->close();
     } else {
@@ -36,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -60,8 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p class="stat-label mb-1">Welcome back</p>
                             <h1 class="page-title" style="font-size:28px;">Professor Login</h1>
                         </div>
-                        <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
+                        <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div><?php endif; ?>
                         <form method="post" class="d-grid gap-3">
+                            <?php csrf_input(); ?>
                             <div>
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" class="form-control" required>
@@ -74,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </form>
                         <div class="text-center mt-3">
                             <a href="register.php" class="nav-link p-0">Need an account? Register</a>
+                            <br>
+                            <a href="forgot_password.php" class="nav-link p-0">Forgot password?</a>
                         </div>
                         <div class="text-center mt-2">
                             <a href="../index.php" class="nav-link p-0">Back to Home</a>

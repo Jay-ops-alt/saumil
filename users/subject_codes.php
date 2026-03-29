@@ -60,6 +60,8 @@ $activePage = 'subject_codes';
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -109,7 +111,7 @@ $activePage = 'subject_codes';
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Code</button>
                 </div>
             </div>
-            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message); ?></div><?php endif; ?>
+            <?php if ($message): ?><div class="alert alert-info mb-3"><?php echo htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></div><?php endif; ?>
             <div class="card card-hover">
                 <div class="table-responsive">
                     <table class="table align-middle" id="codeTable">
@@ -120,10 +122,11 @@ $activePage = 'subject_codes';
                             <?php while ($row = $codeResult->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $row['id']; ?></td>
-                                <td><?php echo htmlspecialchars($row['subject_name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                <td><?php echo htmlspecialchars($row['subject_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($row['code'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></td>
                                 <td class="text-end">
                                     <form method="post" class="d-inline" onsubmit="return confirm('Delete this code?');">
+                                        <?php csrf_input(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                         <button type="submit" class="btn btn-icon" aria-label="Delete code">×</button>
@@ -141,6 +144,7 @@ $activePage = 'subject_codes';
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog">
         <form method="post" class="modal-content">
+            <?php csrf_input(); ?>
             <div class="modal-header">
                 <h5 class="modal-title">Add Subject Code</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -152,7 +156,7 @@ $activePage = 'subject_codes';
                     <select name="subject_id" class="form-select" required>
                         <option value="">Select</option>
                         <?php while ($s = $subjectList->fetch_assoc()): ?>
-                            <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
+                            <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></option>
                         <?php endwhile; ?>
                     </select>
                 </div>
